@@ -1,0 +1,29 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+
+<div class="container p-5">
+    <h3>{{ tournament.name }} <small class="text-info">({{ tournament.category.category }})</small></h3>
+    <form method="post" action="/results/{{tournament.id}}/">
+        {% csrf_token %}
+        <div>
+            {% for question in  questions  %}
+            {% with outer_loop=forloop.counter %}
+                <label style="font-weight: bold;">{{forloop.counter}}.{{ question.question |safe}}</label>
+                {% for ans in  question.incorrect_answers  %}
+                <div class="form-check ml-3">
+                <label class="form-check-label">
+                <input class="form-check-input" type="radio" name="{{ outer_loop }}" value="{{ans|safe}}">{{ans|safe}}
+                </label>
+                </div>
+                {% endfor %}
+            {% endwith %}
+            {% endfor %}
+        </div>
+        <div>
+            <input class="btn btn-primary offset-md-5" type="submit" value="Submit">
+        </div>
+    </form>
+</div>
+
+{% endblock %}

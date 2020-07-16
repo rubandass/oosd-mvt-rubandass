@@ -1,0 +1,180 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+
+<div>
+    <h3>Dashboard</h3>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#Ongoing">Ongoing</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#Upcoming">Upcoming</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#Past">Past</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#Taken">Taken</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane container active" id="Ongoing">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Difficulty</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tournament  in tournament_ongoing %}
+                    {% if user.id not in tournament.taken_by %}
+                    <tr>
+                        <td>{{ tournament.name }}</td>
+                        <td>{{ tournament.category }}</td>
+                        <td>{{ tournament.get_difficulty_display }}</td>
+                        <td>{{ tournament.start_date }}</td>
+                        <td>{{ tournament.end_date }}</td>
+                        {% if user.is_authenticated %}
+                        <td>
+                            <a href="/quiz/{{ tournament.id }}" role="button" class="btn btn-sm btn-warning">Play
+                                game</a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane container fade" id="Upcoming">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Sl.No</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Difficulty</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tournament  in tournament_upcoming %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ tournament.name }}</td>
+                        <td>{{ tournament.category }}</td>
+                        <td>{{ tournament.get_difficulty_display }}</td>
+                        <td>{{ tournament.start_date }}</td>
+                        <td>{{ tournament.end_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane container fade" id="Past">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Sl.No</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Difficulty</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tournament  in tournament_past %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ tournament.name }}</td>
+                        <td>{{ tournament.category }}</td>
+                        <td>{{ tournament.get_difficulty_display }}</td>
+                        <td>{{ tournament.start_date }}</td>
+                        <td>{{ tournament.end_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane container fade" id="Taken">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Sl.No</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Difficulty</th>
+                        <th scope="col">Your Score</th>
+                        <th scope="col">Average Score</th>
+                        <th scope="col">Total Taken</th>
+                        <th scope="col">Highest scores</th>
+                        <th scope="col">Results</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for taken  in user.taken %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ taken.tournament.name }}</td>
+                        <td>{{ taken.tournament.category }}</td>
+                        <td>{{ taken.tournament.get_difficulty_display }}</td>
+                        <td>{{ taken.score }} / 10</td>
+                        <td>{{ taken.tournament.average_score }}</td>
+                        <td>{{ taken.tournament.total_taken }}</td>
+                        <td>
+                            <button type="button" data-players="{{taken.tournament.top_players}}" class="btn btn-sm btn-info viewScores">Highscore</button>
+                        </td>
+                        <td>
+                            <a href="/results/{{ taken.tournament.id }}" role="button" class="btn btn-sm btn-info">Results</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="scoreModal" tabindex="-1" role="dialog" aria-labelledby="scoreModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scoreModalLabel">View Scores</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>User Name</th>
+                            <th>Highest Score</th>
+                            <th>Date Participated</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topPlayerBody">
+                       
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

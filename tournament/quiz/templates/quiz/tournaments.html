@@ -1,0 +1,142 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+
+<div>
+    {% if user.is_authenticated and user.is_staff %}
+        <button type="button" class="btn btn-info addTournament" id="newTournament">New Tournament</button>
+    {% endif %}
+    {% if not user.is_authenticated %}
+        <span class="text-center text-danger">Login to play quiz</span>
+    {% endif %}
+    <table class="table table-striped">
+        <thead class="text-center">
+            <tr>
+                <th scope="col">Sl.No</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Difficulty</th>
+                <th scope="col">Start Date</th>
+                <th scope="col">End Date</th>
+                <th scope="col">Taken</th>
+                {% if user.is_authenticated %}
+                <th scope="col">Action</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            {% for tournament in tournaments %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ tournament.name }}</td>
+                <td>{{ tournament.category }}</td>
+                <td>{{ tournament.get_difficulty_display }}</td>
+                <td>{{ tournament.start_date }}</td>
+                <td>{{ tournament.end_date }}</td>
+                <td>{{tournament.total_taken}}</td>
+                {% if user.is_authenticated and user.is_staff %}
+                <td>
+                    <button type="button" data-questions="{{tournament.quiz_questions}}" class="btn btn-sm btn-info showQuestions" >View Questions</button>
+                    <a href="#" role="button" class="btn btn-sm btn-danger deleteTournament"
+                        data-name="{{ tournament.name }}" data-id="{{ tournament.id }}">Delete</a>
+                </td>
+                {% else %}
+                {% if user.id in tournament.taken_by %}</td>
+                <td>
+                    <a href="/results/{{ tournament.id }}" role="button" class="btn btn-sm btn-info">View result</a>
+                </td>
+                {% else %}
+                {% if user.is_authenticated %}
+                <td>
+                    <a href="/quiz/{{ tournament.id }}" role="button" class="btn btn-sm btn-warning">Play game</a>
+                </td>
+                {% endif %}
+                {% endif %}
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="tournamentModal" tabindex="-1" role="dialog" aria-labelledby="tournamentModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tournamentModalLabel">Add Tournament</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="tournamentForm">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select class="form-control" id="category" name="category_id">
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Difficulty</label>
+                        <select class="form-control" id="difficulty" name="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start_date">Start Date</label>
+                        <input type="date" class="form-control" id="start_date" name="start_date"
+                            placeholder="Start date">
+                    </div>
+                    <div class="form-group">
+                        <label for="end_date">End Date</label>
+                        <input type="date" class="form-control" id="end_date" name="end_date" placeholder="End date">
+                    </div>
+
+                    <label class="text-danger" id="dateValid"></label>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-info tournamentSubmit" id="save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="questionsModal" tabindex="-1" role="dialog" aria-labelledby="questionsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionsModalLabel">View Questions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="questionsBody">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

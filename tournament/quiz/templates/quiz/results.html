@@ -1,0 +1,69 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-header">Tournament</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ results.tournament.name }}</h5>
+                    <p class="card-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Your score</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ results.score }} / 10</h5>
+                    <p class="card-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-header">Total participants</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ results.tournament.total_taken }}</h5>
+                    <p class="card-text"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-header">Highest score</div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ results.tournament.high_score }}</h5>
+                    <p class="card-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            Results
+        </div>
+        <div class="card-body">
+            {% for question in answers %}
+            <h5>{{ forloop.counter }} . {{ question.question |safe}}
+                {% if question.correct_answer == question.user_answer  %}
+                <small class="badge badge-pill badge-success">Correct</small>
+                {% else %}
+                <small class="badge badge-pill badge-danger">Wrong</small>
+                {% endif %}
+            </h5>
+            <ul>
+                <li><span class="text-info">Answer : {{question.correct_answer|safe}}</span></li>
+                {% if question.correct_answer != question.user_answer  %}
+                <li><span class="text-danger">Your answer : {% if question.user_answer  %}  {{question.user_answer | safe}} {% else %} Not answered {% endif %}</span></li>
+                {% endif %}
+            </ul>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

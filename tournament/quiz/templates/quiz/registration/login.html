@@ -1,0 +1,16 @@
+{% extends 'quiz/base.html' %}
+
+{% block content %}
+
+<div class="container text-center">
+  <form style="display: inline-block;" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-group ml-5">
+    <button class="btn btn-success" type="submit" id="login">Login</button>
+    <a href="/signup"><button class="btn btn-primary" type="button" id="signup">Sign Up</button></a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
